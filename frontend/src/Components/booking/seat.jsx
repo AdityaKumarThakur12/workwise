@@ -18,7 +18,7 @@ const SeatGrid = () => {
     }, []);
 
     const fetchSeats = async () => {
-        const res = await axios.get('http://localhost:3000/api/booking/seats');
+        const res = await axios.get('https://workwise-i0gg.onrender.com/api/booking/seats');
         setSeats(res.data);
     };
 
@@ -36,7 +36,7 @@ const SeatGrid = () => {
 
         try {
             const res = await axios.post(
-                'http://localhost:3000/api/booking/reserve',
+                'https://workwise-i0gg.onrender.com/api/booking/reserve',
                 { count },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -50,7 +50,7 @@ const SeatGrid = () => {
     };
 
     const handleReset = async () => {
-        await axios.post('http://localhost:3000/api/booking/reset');
+        await axios.post('https://workwise-i0gg.onrender.com/api/booking/reset');
         setReservedSeats([]);
         setSeatCount('');
         fetchSeats();

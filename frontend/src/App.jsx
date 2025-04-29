@@ -9,11 +9,11 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 2000); // Simulate a 2-second loading time
+    setTimeout(() => setLoading(false), 2000); 
   }, []);
 
   if (loading) {
-    return <TrainLoading />; // Show TrainLoading while loading is true
+    return <TrainLoading />;
   }
 
   return (

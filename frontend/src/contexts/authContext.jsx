@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       if (token) {
         try {
-          const res = await axios.get('http://localhost:3000/api/auth/me', {
+          const res = await axios.get('https://workwise-i0gg.onrender.com/api/auth/me', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/login', { email, password });
+      const res = await axios.post('https://workwise-i0gg.onrender.com/api/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
       setUser(res.data.user);
       setToken(res.data.token);
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password) => {
     try {
-      await axios.post('http://localhost:3000/api/auth/signup', { name, email, password });
+      await axios.post('https://workwise-i0gg.onrender.com/api/auth/signup', { name, email, password });
     } catch (error) {
       console.error('Signup failed:', error);
       throw error;
