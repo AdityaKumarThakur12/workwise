@@ -16,32 +16,32 @@ module.exports.setup = async (req, res) => {
 
 module.exports.reserveSeats = async (req, res) => {
     const { count } = req.body;
-    if (count < 1 || count > 7) return res.status(400).json({ message: 'Invalid seat count' });
+    if (count < 1 || count > 7) {
+        return res.status(400).json({ message: 'Invalid seat count' });
+    }
 
     const allSeats = await Seat.find().sort('number');
     const availableSeats = allSeats.filter(seat => !seat.isBooked);
 
-    if (availableSeats.length < count) return res.status(400).json({ message: 'Not enough seats' });
+    if (availableSeats.length < count) {
+        return res.status(400).json({ message: 'Not enough seats' });
+    }
 
-    const rows = [];
-    for (let i = 0; i < 11; i++) rows.push(allSeats.slice(i * 7, i * 7 + 7));
-    rows.push(allSeats.slice(77));
+    let bestWindow = null;
+    let minRange = Infinity;
 
-    let selectedSeats = [];
-    for (let row of rows) {
-        let contiguous = [];
-        for (let seat of row) {
-            if (!seat.isBooked) contiguous.push(seat);
-            else contiguous = [];
-            if (contiguous.length === count) break;
-        }
-        if (contiguous.length === count) {
-            selectedSeats = contiguous;
-            break;
+    // Sliding window approach
+    for (let i = 0; i <= availableSeats.length - count; i++) {
+        const window = availableSeats.slice(i, i + count);
+        const range = window[count - 1].number - window[0].number;
+
+        if (range < minRange) {
+            minRange = range;
+            bestWindow = window;
         }
     }
 
-    if (!selectedSeats.length) selectedSeats = availableSeats.slice(0, count);
+    const selectedSeats = bestWindow;
 
     for (let seat of selectedSeats) {
         seat.isBooked = true;
@@ -49,8 +49,12 @@ module.exports.reserveSeats = async (req, res) => {
         await seat.save();
     }
 
-    res.json({ message: 'Seats reserved', seats: selectedSeats.map(s => s.number) });
-}
+    res.json({
+        message: 'Seats reserved (closest possible)',
+        seats: selectedSeats.map(s => s.number)
+    });
+};
+
 
 module.exports.seats = async (req, res) => {
     const seats = await Seat.find().sort('number');

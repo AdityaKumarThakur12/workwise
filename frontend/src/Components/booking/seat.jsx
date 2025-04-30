@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../navbar';
 import { useAuth } from '../../contexts/authContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SeatGrid = () => {
     const { user } = useAuth();
@@ -44,6 +46,8 @@ const SeatGrid = () => {
             setError('');
             setSeatCount('');
             fetchSeats();
+
+            toast.success(`Seats reserved successfully! Booked seats: ${res.data.seats.join(', ')}`);
         } catch (err) {
             setError(err.response?.data?.message || 'Reservation failed');
         }
@@ -125,7 +129,6 @@ const SeatGrid = () => {
                             className="p-4 w-full max-w-xs rounded-lg border border-amber-500 bg-slate-700 text-white font-semibold text-lg focus:outline-none focus:ring-4 ring-cyan-400 transition duration-300 ease-in-out"
                         />
 
-                       
                         <button
                             onClick={handleReserve}
                             className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg w-full max-w-xs transition duration-300 transform hover:scale-105 active:scale-95"
@@ -133,7 +136,6 @@ const SeatGrid = () => {
                             Reserve Seats
                         </button>
 
-                        
                         <button
                             onClick={handleReset}
                             className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg w-full max-w-xs transition duration-300 transform hover:scale-105 active:scale-95"
@@ -141,8 +143,24 @@ const SeatGrid = () => {
                             Reset All Seats
                         </button>
 
-                        
                         {error && <div className="text-red-300 font-semibold mt-4 text-center">{error}</div>}
+
+
+                        {reservedSeats.length > 0 && (
+                            <div className="bg-slate-700 text-white p-4 rounded-lg shadow-lg w-full max-w-xs mt-6">
+                                <h3 className="text-lg font-bold mb-2 text-center">Booked Seats</h3>
+                                <div className="flex flex-wrap gap-2 justify-center mt-4">
+                                    {reservedSeats.map((seat, index) => (
+                                        <div
+                                            key={index}
+                                            className="bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg shadow-md text-center"
+                                        >
+                                            {seat}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                 </div>
@@ -162,7 +180,8 @@ const SeatGrid = () => {
                         </button>
                     </div>
                 </div>
-            )}
+            )};
+            <ToastContainer />
         </>
     );
 };
