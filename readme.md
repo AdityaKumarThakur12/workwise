@@ -1,5 +1,10 @@
 # 🚄 FastTrack Tickets - Your Journey Starts with a Zoom!
 
+🔗 **Links to Zoom In**  
+- 🚀 **Live App:** [Forntend live](https://seatmaaster.netlify.app/)  
+- 💻 **Frontend Code:** [Backend live](https://workwise-i0gg.onrender.com)
+
+
 ## 🧹 Problem Statement
 A simple yet efficient train seat reservation system, built to mimic a real-world coach seating scenario. Here's the challenge:
 
