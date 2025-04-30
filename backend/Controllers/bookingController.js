@@ -20,40 +20,67 @@ module.exports.reserveSeats = async (req, res) => {
         return res.status(400).json({ message: 'Invalid seat count' });
     }
 
-    const allSeats = await Seat.find().sort('number');
+    const allSeats = await Seat.find().sort('number'); // seat 0 to 79
     const availableSeats = allSeats.filter(seat => !seat.isBooked);
 
     if (availableSeats.length < count) {
         return res.status(400).json({ message: 'Not enough seats' });
     }
 
-    let bestWindow = null;
-    let minRange = Infinity;
+    // Organize seats into rows (first 11 rows of 7 seats, last one of 3 seats)
+    const rows = [];
+    for (let i = 0; i < 11; i++) {
+        rows.push(allSeats.slice(i * 7, i * 7 + 7));
+    }
+    rows.push(allSeats.slice(77)); // last row (3 seats)
 
-    // Sliding window approach
-    for (let i = 0; i <= availableSeats.length - count; i++) {
-        const window = availableSeats.slice(i, i + count);
-        const range = window[count - 1].number - window[0].number;
+    let selectedSeats = [];
 
-        if (range < minRange) {
-            minRange = range;
-            bestWindow = window;
+    // Step 1: Try finding contiguous unbooked seats in the same row
+    for (let row of rows) {
+        let group = [];
+        for (let seat of row) {
+            if (!seat.isBooked) {
+                group.push(seat);
+            } else {
+                group = [];
+            }
+
+            if (group.length === count) {
+                selectedSeats = group;
+                break;
+            }
+        }
+        if (selectedSeats.length) break; // found in one row, break out
+    }
+
+    // Step 2: Fallback if no single-row group found → pick nearest available seats
+    if (!selectedSeats.length) {
+        // Find the smallest "range" of count seats in the available list
+        let minSpread = Infinity;
+        for (let i = 0; i <= availableSeats.length - count; i++) {
+            const group = availableSeats.slice(i, i + count);
+            const spread = group[group.length - 1].number - group[0].number;
+            if (spread < minSpread) {
+                minSpread = spread;
+                selectedSeats = group;
+            }
         }
     }
 
-    const selectedSeats = bestWindow;
-
+    // Step 3: Book the selected seats
     for (let seat of selectedSeats) {
         seat.isBooked = true;
         seat.bookedBy = req.user.id;
-        await seat.save();
+        await seat.save(); // atomic per-seat save (you could batch with transaction too)
     }
 
     res.json({
-        message: 'Seats reserved (closest possible)',
-        seats: selectedSeats.map(s => s.number)
+        message: 'Seats reserved',
+        seats: selectedSeats.map(s => s.number),
     });
 };
+
 
 
 module.exports.seats = async (req, res) => {
